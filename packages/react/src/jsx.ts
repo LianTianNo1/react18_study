@@ -1,6 +1,12 @@
 // 从shared包导入定义好的类型和常量
 import { REACT_ELEMENT_TYPE } from 'shared/ReactSymbols';
-import { Key, ElementType, Ref, Props, ReactElement } from 'shared/ReactTypes';
+import {
+	Key,
+	ElementType,
+	Ref,
+	Props,
+	ReactElementType
+} from 'shared/ReactTypes';
 
 /** ReactElement */
 
@@ -10,9 +16,9 @@ const ReactElement = function (
 	key: Key,
 	ref: Ref,
 	props: Props
-): ReactElement {
+): ReactElementType {
 	// 使用导入的类型和常量,创建ReactElement对象
-	const element: ReactElement = {
+	const element: ReactElementType = {
 		$$typeof: REACT_ELEMENT_TYPE, // 设置$$typeof为REACT_ELEMENT_TYPE
 		type, // 元素类型
 		key, // 元素key

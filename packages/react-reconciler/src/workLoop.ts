@@ -4,14 +4,37 @@ import { beginWork } from './beginWork';
 //导入completeWork
 import { completeWork } from './completeWork';
 //导入FiberNode
-import { FiberNode } from './fiber';
+import { createWorkInProgress, FiberNode, FiberRootNode } from './fiber';
+import { HostRoot } from './workTags';
 
 //正在执行的Fiber节点
 let workInProgress: FiberNode | null = null;
 
 //准备执行fiber,将fiber设置为workInProgress
-function prepareFreshStack(fiber: FiberNode) {
-	workInProgress = fiber;
+function prepareFreshStack(root: FiberRootNode) {
+	workInProgress = createWorkInProgress(root.current, {});
+}
+
+// 调度Fiber更新
+export function scheduleUpdateOnFiber(fiber: FiberNode) {
+	// TODO 调度功能
+	// fiberRootNode
+	const root = markUpdateFromFiberToRoot(fiber);
+	renderRoot(root);
+}
+
+//标记Fiber更新路径到根节点
+function markUpdateFromFiberToRoot(fiber: FiberNode) {
+	let node = fiber;
+	let parent = node.return;
+	while (parent !== null) {
+		node = parent;
+		parent = node.return;
+	}
+	if (node.tag === HostRoot) {
+		return node.stateNode;
+	}
+	return null;
 }
 
 //渲染根Fiber
@@ -65,5 +88,5 @@ function completeUnitOfWork(fiber: FiberNode) {
 		}
 		node = node.return; //向上回溯
 		workInProgress = node; //设置workInProgress
-	} while (node !== null); //一直回溯,知道node为null
+	} while (node !== null); //一直回溯,直到node为null
 }

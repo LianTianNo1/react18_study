@@ -1,12 +1,13 @@
 //fiber.ts
-import { Props, Key, Ref } from 'shared/ReactTypes';
 //导入Props, Key, Ref类型
-import { WorkTag } from './workTags';
+import { Props, Key, Ref } from 'shared/ReactTypes';
 //导入WorkTag类型
-import { Flags, NoFlags } from './fiberFlags';
+import { WorkTag } from './workTags';
 //导入Flags和NoFlags类型
+import { Flags, NoFlags } from './fiberFlags';
+import { Container } from 'hostConfig';
 
-//定义Fiber节点
+/** FiberNode:定义Fiber节点,表示工作单元/渲染单元 */
 export class FiberNode {
 	//节点类型
 	type: any;
@@ -31,10 +32,14 @@ export class FiberNode {
 	index: number;
 	//上一次渲染的props
 	memoizedProps: Props | null;
+	// 记忆的状态,表示Fiber节点上一次渲染后的状态
+	memoizedState: any;
 	//fiber的备用节点
 	alternate: FiberNode | null;
 	// fiber的状态标志操作 增加/删除/移动
 	flags: Flags;
+	// 更新队列,用于保存对Fiber节点的更新
+	updateQueue: unknown;
 
 	constructor(tag: WorkTag, pendingProps: Props, key: Key) {
 		// 实例
@@ -56,9 +61,55 @@ export class FiberNode {
 		// 作为工作单元
 		this.pendingProps = pendingProps;
 		this.memoizedProps = null;
+		this.memoizedState = null;
+		this.updateQueue = null;
 
 		this.alternate = null;
 		// 副作用
 		this.flags = NoFlags;
 	}
 }
+/** FiberRootNode:定义Fiber节点,表示工作单元/渲染单元 */
+export class FiberRootNode {
+	container: Container; //容器
+	current: FiberNode; //当前Fiber
+	finishedWork: FiberNode | null; //完成工作的Fiber
+	constructor(container: Container, hostRootFiber: FiberNode) {
+		// 初始化Fiber根节点
+		this.container = container;
+		this.current = hostRootFiber;
+		hostRootFiber.stateNode = this;
+		this.finishedWork = null;
+	}
+}
+
+/** 创建工作中的进度Fiber,用于更新 */
+export const createWorkInProgress = (
+	current: FiberNode,
+	pendingProps: Props
+): FiberNode => {
+	let wip = current.alternate;
+	// 如果current.alternate 不存在,说明是首次渲染,创建一个新的Fiber节点作为工作中的进度Fiber
+	if (wip === null) {
+		// mount
+		wip = new FiberNode(current.tag, pendingProps, current.key);
+		wip.stateNode = current.stateNode;
+
+		wip.alternate = current;
+		current.alternate = wip;
+	} else {
+		// 否则更新工作中的进度Fiber的pendingProps和flags
+		// update
+		wip.pendingProps = pendingProps;
+		wip.flags = NoFlags;
+	}
+	// 将其他属性从当前Fiber复制到工作中的进度Fiber
+	wip.type = current.type;
+	wip.updateQueue = current.updateQueue;
+	wip.child = current.child;
+	wip.memoizedProps = current.memoizedProps;
+	wip.memoizedState = current.memoizedState;
+
+	// 返回工作中的进度Fiber
+	return wip;
+};
