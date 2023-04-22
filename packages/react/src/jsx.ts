@@ -39,7 +39,7 @@ function hasValidRef(config: any) {
 // 使用ReactElement工厂函数创建并返回ReactElement对象
 export const jsx = (type: ElementType, config: any, ...maybeChildren: any) => {
 	let key: Key = null;
-	const props: any = {};
+	const props: Props = {};
 	let ref: Ref = null;
 
 	for (const prop in config) {
@@ -76,4 +76,33 @@ export const jsx = (type: ElementType, config: any, ...maybeChildren: any) => {
 	return ReactElement(type, key, ref, props);
 };
 
-export const jsxDev = jsx;
+// export const jsxDev = jsx;
+export const jsxDEV = (type: ElementType, config: any) => {
+	let key: Key = null;
+	const props: Props = {};
+	let ref: Ref = null;
+
+	for (const prop in config) {
+		const val = config[prop];
+		// 从config中提取key和ref
+		if (prop === 'key') {
+			if (hasValidKey(config)) {
+				key = '' + val;
+			}
+			continue;
+		}
+		if (prop === 'ref' && val !== undefined) {
+			if (hasValidRef(config)) {
+				ref = val;
+			}
+			continue;
+		}
+		// 其余属性添加到props对象
+		if ({}.hasOwnProperty.call(config, prop)) {
+			props[prop] = val;
+		}
+	}
+
+	// 使用ReactElement工厂函数创建ReactElement对象并返回
+	return ReactElement(type, key, ref, props);
+};
