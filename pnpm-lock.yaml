@@ -38,6 +38,21 @@ importers:
       rollup-plugin-typescript2: registry.npmmirror.com/rollup-plugin-typescript2/0.34.1_lhrcpyem2zu5b6sfj3l3zvso3q
       typescript: registry.npmmirror.com/typescript/5.0.4
 
+  packages/react:
+    specifiers:
+      shared: workspace:*
+    dependencies:
+      shared: link:../shared
+
+  packages/react-reconciler:
+    specifiers:
+      shared: 'workspace: *'
+    dependencies:
+      shared: link:../shared
+
+  packages/shared:
+    specifiers: {}
+
 packages:
 
   registry.npmmirror.com/@babel/code-frame/7.21.4:
