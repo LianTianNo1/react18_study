@@ -38,6 +38,7 @@ export class FiberNode {
 	alternate: FiberNode | null;
 	// fiber的状态标志操作 增加/删除/移动
 	flags: Flags;
+	subtreeFlags: Flags;
 	// 更新队列,用于保存对Fiber节点的更新
 	updateQueue: unknown;
 
@@ -67,6 +68,7 @@ export class FiberNode {
 		this.alternate = null;
 		// 副作用
 		this.flags = NoFlags;
+		this.subtreeFlags = NoFlags;
 	}
 }
 /** FiberRootNode:定义Fiber节点,表示工作单元/渲染单元 */
@@ -102,6 +104,7 @@ export const createWorkInProgress = (
 		// update
 		wip.pendingProps = pendingProps;
 		wip.flags = NoFlags;
+		wip.subtreeFlags = NoFlags;
 	}
 	// 将其他属性从当前Fiber复制到工作中的进度Fiber
 	wip.type = current.type;
