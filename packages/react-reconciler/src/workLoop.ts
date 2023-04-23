@@ -47,7 +47,9 @@ function renderRoot(root: FiberNode) {
 			workLoop(); //执行调度循环
 			break; //跳出循环
 		} catch (e) {
-			console.warn('workLoop发生错误', e);
+			if (__DEV__) {
+				console.warn('workLoop发生错误', e);
+			}
 			workInProgress = null; //重置workInProgress
 		}
 	} while (true); //一直循环,知道跳出
